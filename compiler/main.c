@@ -6,10 +6,10 @@ int main(void)
 {
 	char src[512] = "+-/*while if";
 
-	lexeme_t *lexeme_list;
-	lex_scanner(src, &lexeme_list);
+	lex_token *lex_list;
+	lex_scanner(src, &lex_list);
 
-	print_lex_tree(lexeme_list);
+	print_lex_list(lex_list);
 
 	return 0;
 }

@@ -1,6 +1,11 @@
 #ifndef __LEX_PARSER_H__
 #define __LEX_PARSER_H__
 
+#define IDENTIFIER_STR_MAX_LEN 50
+
+#define DEF_LEX_NAME(token) #token,
+
+/* enumerate all tokens */
 enum {
 	DATA_TYPE_TOKEN = 0,
 	COLON_TOKEN,
@@ -31,13 +36,13 @@ enum {
 	LINE_COMMENT_TOKEN,
 } LEX_TOKEN_NAMES;
 
-typedef struct _lexeme_ {
-	int token_name;
+typedef struct _lext_token {
+	int token_type;
 	int token_val;
-	struct _lexeme_ *next;
-} lexeme_t;
+	struct _lext_token *next;
+} lex_token;
 
-void lex_scanner(char *s, lexeme_t **lexeme_list);
-void print_lex_tree(lexeme_t *lexeme_list);
+void lex_scanner(char *s, lex_token **lexeme_list);
+void print_lex_list(lex_token *lexeme_list);
 
 #endif
