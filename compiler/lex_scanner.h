@@ -3,22 +3,18 @@
 
 enum {
 	DATA_TYPE_TOKEN = 0,
-
 	COLON_TOKEN,
 	SEMICOLON_TOKEN,
 	LEFT_PARAN_TOKEN,
 	RIGHT_PARAN_TOKEN,
 	LEFT_BRACE_TOKEN,
 	RIGHT_BRACE_TOKEN,
-
-	ASIGN_TOKEN,
+	ASSIGN_TOKEN,
 	ADD_TOKEN,
 	SUB_TOKEN,
 	MULT_TOKEN,
 	DIV_TOKEN,
-
 	MOD_TOKEN,
-
 	EQUAL_TOKEN,
 	NOT_EQUAL_TOKEN,
 	GREATER_TOKEN,
@@ -35,9 +31,13 @@ enum {
 	LINE_COMMENT_TOKEN,
 } LEX_TOKEN_NAMES;
 
-typedef struct {
+typedef struct _lexeme_ {
 	int token_name;
 	int token_val;
+	struct _lexeme_ *next;
 } lexeme_t;
+
+void lex_scanner(char *s, lexeme_t **lexeme_list);
+void print_lex_tree(lexeme_t *lexeme_list);
 
 #endif
