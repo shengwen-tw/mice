@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "lex_scanner.h"
+#include "lexer.h"
 
 const char *lex_token_name[] = {
 	DEF_LEX_NAME(DATA_TYPE_TOKEN)
+	DEF_LEX_NAME(NUM_TOKEN)
+	DEF_LEX_NAME(OP_TOKEN)
 	DEF_LEX_NAME(COLON_TOKEN)
 	DEF_LEX_NAME(SEMICOLON_TOKEN)
 	DEF_LEX_NAME(LEFT_PARAN_TOKEN)

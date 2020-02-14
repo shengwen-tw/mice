@@ -3,7 +3,8 @@ ELF=mice_cc
 CFLAGS+=-I./
 
 SRC=main.c \
-	lex_scanner.c
+	lexer.c \
+	syntax_parser.c
 
 all: $(SRC)
 	gcc -o $(ELF) $^

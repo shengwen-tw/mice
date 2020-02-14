@@ -1,5 +1,5 @@
-#ifndef __LEX_PARSER_H__
-#define __LEX_PARSER_H__
+#ifndef __LEXER_H__
+#define __LEXER_H__
 
 #define IDENTIFIER_STR_MAX_LEN 50
 
@@ -8,6 +8,8 @@
 /* enumerate all tokens */
 enum {
 	DATA_TYPE_TOKEN = 0,
+	NUM_TOKEN,
+	OP_TOKEN,
 	COLON_TOKEN,
 	SEMICOLON_TOKEN,
 	LEFT_PARAN_TOKEN,
