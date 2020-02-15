@@ -1,6 +1,8 @@
 #ifndef __LEXER_H__
 #define __LEXER_H__
 
+#include <stdint.h>
+
 #define IDENTIFIER_STR_MAX_LEN 50
 
 #define DEF_LEX_NAME(token) #token,
@@ -8,6 +10,7 @@
 /* enumerate all tokens */
 enum {
 	DATA_TYPE_TOKEN = 0,
+	IDENTIFIER_TOKEN,
 	NUM_TOKEN,
 	OP_TOKEN,
 	COLON_TOKEN,
@@ -39,8 +42,8 @@ enum {
 } LEX_TOKEN_NAMES;
 
 typedef struct _lext_token {
-	int token_type;
-	int token_val;
+	uint32_t token_type;
+	uint64_t token_val;
 	struct _lext_token *next;
 } lex_token;
 

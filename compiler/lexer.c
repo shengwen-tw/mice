@@ -5,6 +5,7 @@
 
 const char *lex_token_name[] = {
 	DEF_LEX_NAME(DATA_TYPE_TOKEN)
+	DEF_LEX_NAME(IDENTIFIER_TOKEN)
 	DEF_LEX_NAME(NUM_TOKEN)
 	DEF_LEX_NAME(OP_TOKEN)
 	DEF_LEX_NAME(COLON_TOKEN)
@@ -35,11 +36,12 @@ const char *lex_token_name[] = {
 	DEF_LEX_NAME(LINE_COMMENT_TOKEN)
 };
 
-static void lex_append_new(lex_token **last, lex_token **start, int token_type)
+static void lex_append_new(lex_token **last, lex_token **start, uint32_t token_type, uint64_t token_val)
 {
 	//allocate new lex token
 	lex_token *lex_next = (lex_token *)malloc(sizeof(lex_token));
 	lex_next->token_type = token_type;
+	lex_next->token_val = token_val;
 	lex_next->next = NULL;
 
 	if(*last == NULL) {
@@ -77,23 +79,30 @@ void lex_scanner(char *s, lex_token **lex_list)
 			}
 
 			if(strcmp("if", identifier_buf) == 0) {
-				lex_append_new(&last, &start, IF_TOKEN);
+				lex_append_new(&last, &start, IF_TOKEN, 0);
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+				identifier_curr = 0;
 			} else if(strcmp("else", identifier_buf) == 0) {
-				lex_append_new(&last, &start, ELSE_TOKEN);
+				lex_append_new(&last, &start, ELSE_TOKEN, 0);
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+				identifier_curr = 0;
 			} else if(strcmp("while", identifier_buf) == 0) {
-				lex_append_new(&last, &start, WHILE_TOKEN);
+				lex_append_new(&last, &start, WHILE_TOKEN, 0);
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+				identifier_curr = 0;
 			} else if(strcmp("print", identifier_buf) == 0) {
-				lex_append_new(&last, &start, PRINT_TOKEN);
+				lex_append_new(&last, &start, PRINT_TOKEN, 0);
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+				identifier_curr = 0;
 			} else {
 				//lookahead
 				char next_c = *(s+1);
 				if(!(next_c >= 'a' && next_c <= 'z') && !(next_c >= 'A' && next_c <= 'Z')) {
-					//XXX: finish me!
+					char *id_str = (char *)malloc(sizeof(char) * identifier_curr+1);
+					strncpy(id_str, identifier_buf, identifier_curr);
+					lex_append_new(&last, &start, IDENTIFIER_TOKEN, (uint64_t)id_str);
 					memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+					identifier_curr = 0;
 					s++;
 				}
 			}
@@ -106,80 +115,80 @@ void lex_scanner(char *s, lex_token **lex_list)
 		case ' ':
 			break;
 		case ':': //colon token ':'
-			lex_append_new(&last, &start, COLON_TOKEN);
+			lex_append_new(&last, &start, COLON_TOKEN, 0);
 			break;
 		case ';': //semicolon token ';'
-			lex_append_new(&last, &start, SEMICOLON_TOKEN);
+			lex_append_new(&last, &start, SEMICOLON_TOKEN, 0);
 			break;
 		case '(': //left parentheses token '('
-			lex_append_new(&last, &start, LEFT_PARAN_TOKEN);
+			lex_append_new(&last, &start, LEFT_PARAN_TOKEN, 0);
 			break;
 		case ')': //right parentheses token ')'
-			lex_append_new(&last, &start, RIGHT_PARAN_TOKEN);
+			lex_append_new(&last, &start, RIGHT_PARAN_TOKEN, 0);
 			break;
 		case '{': //left brace token '{'
-			lex_append_new(&last, &start, LEFT_BRACE_TOKEN);
+			lex_append_new(&last, &start, LEFT_BRACE_TOKEN, 0);
 			break;
 		case '}': //right brace token '}'
-			lex_append_new(&last, &start, RIGHT_BRACE_TOKEN);
+			lex_append_new(&last, &start, RIGHT_BRACE_TOKEN, 0);
 			break;
 		case '=':
 			if(*(s+1) == '=') { //equal token '=='
-				lex_append_new(&last, &start, EQUAL_TOKEN);
+				lex_append_new(&last, &start, EQUAL_TOKEN, 0);
 				s++;
 			} else { //assign token '='
-				lex_append_new(&last, &start, ASSIGN_TOKEN);
+				lex_append_new(&last, &start, ASSIGN_TOKEN, 0);
 			}
 			break;
 		case '+': //add token '+'
-			lex_append_new(&last, &start, ADD_TOKEN);
+			lex_append_new(&last, &start, ADD_TOKEN, 0);
 			break;
 		case '-': //subtract token '-'
-			lex_append_new(&last, &start, SUB_TOKEN);
+			lex_append_new(&last, &start, SUB_TOKEN, 0);
 			break;
 		case '*': //multiply token '*'
-			lex_append_new(&last, &start, MULT_TOKEN);
+			lex_append_new(&last, &start, MULT_TOKEN, 0);
 			break;
 		case '/':
 			if(*(s+1) == '/') { //comment token '//'
-				lex_append_new(&last, &start, LINE_COMMENT_TOKEN);
+				lex_append_new(&last, &start, LINE_COMMENT_TOKEN, 0);
 				s++;
 			} else { //divide token '/'
-				lex_append_new(&last, &start, DIV_TOKEN);
+				lex_append_new(&last, &start, DIV_TOKEN, 0);
 			}
 			break;
 		case '%': //mod token
-			lex_append_new(&last, &start, MOD_TOKEN);
+			lex_append_new(&last, &start, MOD_TOKEN, 0);
 			break;
 		case '!':
 			if(*(s+1) == '=') { //not equal token '!='
-				lex_append_new(&last, &start, NOT_EQUAL_TOKEN);
+				lex_append_new(&last, &start, NOT_EQUAL_TOKEN, 0);
 				s++;
 			} else { //not token '!'
-				lex_append_new(&last, &start, NOT_TOKEN);
+				lex_append_new(&last, &start, NOT_TOKEN, 0);
 			}
 			break;
 		case '>':
 			if(*(s+1) == '=') { //greater equal token '>='
-				lex_append_new(&last, &start, GREATER_EQUAL_TOKEN);
+				lex_append_new(&last, &start, GREATER_EQUAL_TOKEN, 0);
 				s++;
 			} else { //greater token '>'
-				lex_append_new(&last, &start, GREATER_EQUAL_TOKEN);
+				lex_append_new(&last, &start, GREATER_EQUAL_TOKEN, 0);
 			}
 			break;
 		case '<':
 			if(*(s+1) == '=') { //less equal token '<='
-				lex_append_new(&last, &start, LESS_EQUAL_TOKEN);
+				lex_append_new(&last, &start, LESS_EQUAL_TOKEN, 0);
 				s++;
 			} else { //less token '<'
-				lex_append_new(&last, &start, LESS_TOKEN);
+				lex_append_new(&last, &start, LESS_TOKEN, 0);
 			}
 			break;
 		case '&': //and token '&'
-			lex_append_new(&last, &start, AND_TOKEN);
+			lex_append_new(&last, &start, AND_TOKEN, 0);
 			break;
 		case '|': //or token '|'
-			lex_append_new(&last, &start, OR_TOKEN);
+			lex_append_new(&last, &start, OR_TOKEN, 0);
 			break;
 		}
 
@@ -191,7 +200,11 @@ void print_lex_list(lex_token *lex_list)
 {
 	printf("[lex token list:]\n");
 	while(lex_list != NULL) {
-		printf("%s\n", lex_token_name[lex_list->token_type]);
+		if(lex_list->token_type == IDENTIFIER_TOKEN) {
+			printf("%s -> \"%s\"\n", lex_token_name[lex_list->token_type], (char *)lex_list->token_val);
+		} else {
+			printf("%s\n", lex_token_name[lex_list->token_type]);
+		}
 		lex_list = lex_list->next;
 	}
 }
