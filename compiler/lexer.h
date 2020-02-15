@@ -9,7 +9,7 @@
 
 /* enumerate all tokens */
 enum {
-	DATA_TYPE_TOKEN = 0,
+	INT_TOKEN,
 	IDENTIFIER_TOKEN,
 	NUM_TOKEN,
 	OP_TOKEN,

@@ -4,7 +4,7 @@
 #include "lexer.h"
 
 const char *lex_token_name[] = {
-	DEF_LEX_NAME(DATA_TYPE_TOKEN)
+	DEF_LEX_NAME(INT_TOKEN)
 	DEF_LEX_NAME(IDENTIFIER_TOKEN)
 	DEF_LEX_NAME(NUM_TOKEN)
 	DEF_LEX_NAME(OP_TOKEN)
@@ -67,8 +67,7 @@ void lex_scanner(char *s, lex_token **lex_list)
 	while(1) {
 		c = *s; //read new char
 
-		/* identifier state */
-		if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+		if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_')) { //parse for identifier
 			identifier_buf[identifier_curr] = c;
 			identifier_curr++;
 
@@ -78,7 +77,11 @@ void lex_scanner(char *s, lex_token **lex_list)
 				exit(0);
 			}
 
-			if(strcmp("if", identifier_buf) == 0) {
+			if(strcmp("int", identifier_buf) == 0) {
+				lex_append_new(&last, &start, INT_TOKEN, 0);
+				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+				identifier_curr = 0;
+			} else if(strcmp("if", identifier_buf) == 0) {
 				lex_append_new(&last, &start, IF_TOKEN, 0);
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
 				identifier_curr = 0;
@@ -95,9 +98,8 @@ void lex_scanner(char *s, lex_token **lex_list)
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
 				identifier_curr = 0;
 			} else {
-				//lookahead
-				char next_c = *(s+1);
-				if(!(next_c >= 'a' && next_c <= 'z') && !(next_c >= 'A' && next_c <= 'Z')) {
+				char next_c = *(s+1); //lookahead for 1 char
+				if(!(next_c >= 'a' && next_c <= 'z') && !(next_c >= 'A' && next_c <= 'Z') && (next_c != '_')) {
 					char *id_str = (char *)malloc(sizeof(char) * identifier_curr+1);
 					strncpy(id_str, identifier_buf, identifier_curr);
 					lex_append_new(&last, &start, IDENTIFIER_TOKEN, (uint64_t)id_str);
@@ -105,6 +107,18 @@ void lex_scanner(char *s, lex_token **lex_list)
 					identifier_curr = 0;
 					s++;
 				}
+			}
+		} else if(c >= '0' && c <= '9') { //parse for integer
+			identifier_buf[identifier_curr] = c;
+			identifier_curr++;
+
+			char next_c = *(s+1); //lookahead for 1 char
+			if(!(next_c >= '0' && next_c <= '9')) {
+				int token_num_val = atoi(identifier_buf);
+				lex_append_new(&last, &start, NUM_TOKEN, token_num_val);
+				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
+				identifier_curr = 0;
+				s++;
 			}
 		}
 
@@ -202,6 +216,8 @@ void print_lex_list(lex_token *lex_list)
 	while(lex_list != NULL) {
 		if(lex_list->token_type == IDENTIFIER_TOKEN) {
 			printf("%s -> \"%s\"\n", lex_token_name[lex_list->token_type], (char *)lex_list->token_val);
+		} else if(lex_list->token_type == NUM_TOKEN) {
+			printf("%s -> %ld\n", lex_token_name[lex_list->token_type], lex_list->token_val);
 		} else {
 			printf("%s\n", lex_token_name[lex_list->token_type]);
 		}

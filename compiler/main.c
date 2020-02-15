@@ -5,7 +5,7 @@
 
 int main(void)
 {
-	char src[512] = "while() int  { if ()}";
+	char src[512] = "while(1) int my_var; { if ()}";
 
 	lex_token *lex_list;
 	lex_scanner(src, &lex_list);
