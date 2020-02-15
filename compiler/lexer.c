@@ -132,7 +132,7 @@ void lex_scanner(char *s, lex_token **lex_list)
 				s+=3;
 				continue;
 			} else {
-				printf("single quote ' is not closed\n");
+				printf("error, single quote ' is not closed\n");
 				exit(0);
 			}
 		}
@@ -219,6 +219,9 @@ void lex_scanner(char *s, lex_token **lex_list)
 		case '|': //or token '|'
 			lex_append_new(&last, &start, OR_TOKEN, 0);
 			break;
+		default:
+			printf("error, unknown token %c\n", c);
+			exit(0);
 		}
 
 		s++;
