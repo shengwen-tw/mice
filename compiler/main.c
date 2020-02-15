@@ -5,7 +5,7 @@
 
 int main(void)
 {
-	char src[512] = "if(i) {print('@');}";
+	char src[512] = "if(1 + 1) {print('A');}";
 
 	printf("generate lex token list...\n");
 	lex_token *lex_list;

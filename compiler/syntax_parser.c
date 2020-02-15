@@ -5,9 +5,9 @@
 
 lex_token *lex_list;
 
-static void parse_start_sym(syntax_node **syntax_tree);
+static void parse_branch(syntax_node **syntax_tree);
+static void parse_loop(syntax_node **syntax_tree);
 static void parse_expr(syntax_node **syntax_tree);
-static void parse_end_sym(syntax_node **syntax_tree);
 
 void init_syntax_parser(lex_token *p)
 {
@@ -31,10 +31,7 @@ static void match_token(int token)
 	lex_token *new_token = next_token();
 	if(new_token == NULL) return;
 
-	printf("[%s] ", token_name_str(token)); //XXX
-
-	if(new_token->token_type == token) {
-	} else {
+	if(new_token->token_type != token) {
 		printf("can't match %s\n", token_name_str(token));
 		exit(0);
 	}
@@ -46,6 +43,7 @@ static void match_op()
 	if(new_token == NULL) return;
 
 	switch(new_token->token_type) {
+	case ASSIGN_TOKEN:
 	case ADD_TOKEN:
 	case SUB_TOKEN:
 	case MULT_TOKEN:
@@ -68,32 +66,60 @@ static void match_op()
 	}
 }
 
-static void parse_start_sym(syntax_node **syntax_tree)
+static void parse_branch(syntax_node **syntax_tree)
 {
 	lex_token *new_token = lex_lookahead();
 	if(new_token == NULL) return;
 
+	//printf("S\n");
+
 	switch(new_token->token_type) {
 	case IF_TOKEN:
 		match_token(IF_TOKEN);
+		match_token(LEFT_PARAN_TOKEN);
 		parse_expr(syntax_tree);
-		parse_start_sym(syntax_tree);
-		match_token(ELSE_TOKEN);
-		parse_start_sym(syntax_tree);
+		match_token(RIGHT_PARAN_TOKEN);
+		parse_loop(syntax_tree);
 		break;
 	case WHILE_TOKEN:
-		match_token(WHILE_TOKEN);
-		parse_expr(syntax_tree);
-		parse_start_sym(syntax_tree);
 		break;
 	case LEFT_BRACE_TOKEN:
 		match_token(LEFT_BRACE_TOKEN);
-		parse_end_sym(syntax_tree);
+		parse_loop(syntax_tree);
 		match_token(RIGHT_BRACE_TOKEN);
 		break;
 	case PRINT_TOKEN:
 		match_token(PRINT_TOKEN);
-		parse_expr(syntax_tree);
+		match_token(LEFT_PARAN_TOKEN);
+		match_token(CHAR_TOKEN);
+		match_token(RIGHT_PARAN_TOKEN);
+		break;
+	default:
+		printf("syntax error, %s should not appeared here!\n",
+		       token_name_str(new_token->token_type));
+		exit(0);
+	}
+}
+
+static void parse_loop(syntax_node **syntax_tree)
+{
+	lex_token *new_token = lex_lookahead();
+	if(new_token == NULL) return;
+
+	//printf("L\n");
+
+	switch(new_token->token_type) {
+	case RIGHT_BRACE_TOKEN:
+		break;
+	case IF_TOKEN:
+	case WHILE_TOKEN:
+	case LEFT_BRACE_TOKEN:
+		parse_branch(syntax_tree);
+		break;
+	case PRINT_TOKEN:
+		parse_branch(syntax_tree);
+		match_token(SEMICOLON_TOKEN);
+		parse_loop(syntax_tree);
 		break;
 	default:
 		printf("syntax error, %s should not appeared here!\n",
@@ -106,6 +132,8 @@ static void parse_expr(syntax_node **syntax_tree)
 {
 	lex_token *new_token = lex_lookahead();
 	if(new_token == NULL) return;
+
+	//printf("E\n");
 
 	switch(new_token->token_type) {
 	case NUM_TOKEN:
@@ -120,27 +148,7 @@ static void parse_expr(syntax_node **syntax_tree)
 	}
 }
 
-static void parse_end_sym(syntax_node **syntax_tree)
-{
-	lex_token *new_token = lex_lookahead();
-	if(new_token == NULL) return;
-
-	switch(new_token->token_type) {
-	case RIGHT_BRACE_TOKEN:
-		break;
-	case IF_TOKEN:
-	case LEFT_BRACE_TOKEN:
-	case PRINT_TOKEN:
-		parse_start_sym(syntax_tree);
-		break;		
-	default:
-		printf("syntax error, %s should not appeared here!\n",
-		       token_name_str(new_token->token_type));
-		exit(0);
-	}
-}
-
 void generate_ast(syntax_node **syntax_tree)
 {
-	parse_start_sym(syntax_tree);
+	parse_loop(syntax_tree);
 }
