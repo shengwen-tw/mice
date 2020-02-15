@@ -28,9 +28,11 @@ static lex_token *next_token()
 
 static void match_token(int token)
 {
-	printf("[%s] ", token_name_str(token));
-
 	lex_token *new_token = next_token();
+	if(new_token == NULL) return;
+
+	printf("[%s] ", token_name_str(token)); //XXX
+
 	if(new_token->token_type == token) {
 	} else {
 		printf("can't match %s\n", token_name_str(token));
@@ -41,6 +43,8 @@ static void match_token(int token)
 static void match_op()
 {
 	lex_token *new_token = next_token();
+	if(new_token == NULL) return;
+
 	switch(new_token->token_type) {
 	case ADD_TOKEN:
 	case SUB_TOKEN:
@@ -67,6 +71,7 @@ static void match_op()
 static void parse_start_sym(syntax_node **syntax_tree)
 {
 	lex_token *new_token = lex_lookahead();
+	if(new_token == NULL) return;
 
 	switch(new_token->token_type) {
 	case IF_TOKEN:
@@ -100,6 +105,7 @@ static void parse_start_sym(syntax_node **syntax_tree)
 static void parse_expr(syntax_node **syntax_tree)
 {
 	lex_token *new_token = lex_lookahead();
+	if(new_token == NULL) return;
 
 	switch(new_token->token_type) {
 	case NUM_TOKEN:
@@ -117,6 +123,7 @@ static void parse_expr(syntax_node **syntax_tree)
 static void parse_end_sym(syntax_node **syntax_tree)
 {
 	lex_token *new_token = lex_lookahead();
+	if(new_token == NULL) return;
 
 	switch(new_token->token_type) {
 	case RIGHT_BRACE_TOKEN:
