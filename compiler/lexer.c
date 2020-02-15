@@ -3,11 +3,11 @@
 #include <string.h>
 #include "lexer.h"
 
-const char *lex_token_name[] = {
+char *lex_token_name[] = {
 	DEF_LEX_NAME(INT_TOKEN)
 	DEF_LEX_NAME(IDENTIFIER_TOKEN)
 	DEF_LEX_NAME(NUM_TOKEN)
-	DEF_LEX_NAME(OP_TOKEN)
+	DEF_LEX_NAME(CHAR_TOKEN)
 	DEF_LEX_NAME(COLON_TOKEN)
 	DEF_LEX_NAME(SEMICOLON_TOKEN)
 	DEF_LEX_NAME(LEFT_PARAN_TOKEN)
@@ -105,9 +105,11 @@ void lex_scanner(char *s, lex_token **lex_list)
 					lex_append_new(&last, &start, IDENTIFIER_TOKEN, (uint64_t)id_str);
 					memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
 					identifier_curr = 0;
-					s++;
 				}
 			}
+
+			s++;
+			continue;
 		} else if(c >= '0' && c <= '9') { //parse for integer
 			identifier_buf[identifier_curr] = c;
 			identifier_curr++;
@@ -118,7 +120,20 @@ void lex_scanner(char *s, lex_token **lex_list)
 				lex_append_new(&last, &start, NUM_TOKEN, token_num_val);
 				memset(identifier_buf, 0, IDENTIFIER_STR_MAX_LEN);
 				identifier_curr = 0;
-				s++;
+			}
+
+			s++;
+			continue;
+		} else if(c == '\'') {
+			//lookahead for two chars
+			char next_next_c = *(s+2);
+			if(next_next_c == '\'') {
+				lex_append_new(&last, &start, CHAR_TOKEN, *(s+1));
+				s+=3;
+				continue;
+			} else {
+				printf("single quote ' is not closed\n");
+				exit(0);
 			}
 		}
 
@@ -206,20 +221,27 @@ void lex_scanner(char *s, lex_token **lex_list)
 			break;
 		}
 
-		s++; //point to next char
+		s++;
 	}
+}
+
+char *token_name_str(uint32_t token_type)
+{
+	return lex_token_name[token_type];
 }
 
 void print_lex_list(lex_token *lex_list)
 {
-	printf("[lex token list:]\n");
+	printf("[lex token list]:\n");
 	while(lex_list != NULL) {
 		if(lex_list->token_type == IDENTIFIER_TOKEN) {
-			printf("%s -> \"%s\"\n", lex_token_name[lex_list->token_type], (char *)lex_list->token_val);
+			printf("> %s -> \"%s\"\n", token_name_str(lex_list->token_type), (char *)lex_list->token_val);
 		} else if(lex_list->token_type == NUM_TOKEN) {
-			printf("%s -> %ld\n", lex_token_name[lex_list->token_type], lex_list->token_val);
+			printf("> %s -> %ld\n", token_name_str(lex_list->token_type), lex_list->token_val);
+		} else if(lex_list->token_type == CHAR_TOKEN) {
+			printf("> %s -> '%c'\n", token_name_str(lex_list->token_type), (char)lex_list->token_val);
 		} else {
-			printf("%s\n", lex_token_name[lex_list->token_type]);
+			printf("> %s\n", token_name_str(lex_list->token_type));
 		}
 		lex_list = lex_list->next;
 	}

@@ -1,4 +1,5 @@
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "lexer.h"
 #include "syntax_parser.h"
 
@@ -25,17 +26,41 @@ static lex_token *next_token()
 	return ret_val;
 }
 
-static void error(int token)
+static void match_token(int token)
 {
-	exit(0);
-}
+	printf("[%s] ", token_name_str(token));
 
-static void match(int token)
-{
 	lex_token *new_token = next_token();
 	if(new_token->token_type == token) {
 	} else {
-		error(token);
+		printf("can't match %s\n", token_name_str(token));
+		exit(0);
+	}
+}
+
+static void match_op()
+{
+	lex_token *new_token = next_token();
+	switch(new_token->token_type) {
+	case ADD_TOKEN:
+	case SUB_TOKEN:
+	case MULT_TOKEN:
+	case DIV_TOKEN:
+	case MOD_TOKEN:
+	case EQUAL_TOKEN:
+	case NOT_EQUAL_TOKEN:
+	case GREATER_TOKEN:
+	case GREATER_EQUAL_TOKEN:
+	case LESS_TOKEN:
+	case LESS_EQUAL_TOKEN:
+	case AND_TOKEN:
+	case OR_TOKEN:
+	case NOT_TOKEN:
+		break;
+	default:
+		printf("can't match any operator symbol, %s should not appeared here!\n",
+		       token_name_str(new_token->token_type));
+		exit(0);
 	}
 }
 
@@ -45,28 +70,30 @@ static void parse_start_sym(syntax_node **syntax_tree)
 
 	switch(new_token->token_type) {
 	case IF_TOKEN:
-		match(IF_TOKEN);
+		match_token(IF_TOKEN);
 		parse_expr(syntax_tree);
 		parse_start_sym(syntax_tree);
-		match(ELSE_TOKEN);
+		match_token(ELSE_TOKEN);
 		parse_start_sym(syntax_tree);
 		break;
 	case WHILE_TOKEN:
-		match(WHILE_TOKEN);
+		match_token(WHILE_TOKEN);
 		parse_expr(syntax_tree);
 		parse_start_sym(syntax_tree);
 		break;
 	case LEFT_BRACE_TOKEN:
-		match(LEFT_BRACE_TOKEN);
+		match_token(LEFT_BRACE_TOKEN);
 		parse_end_sym(syntax_tree);
-		match(RIGHT_BRACE_TOKEN);
+		match_token(RIGHT_BRACE_TOKEN);
 		break;
 	case PRINT_TOKEN:
-		match(PRINT_TOKEN);
+		match_token(PRINT_TOKEN);
 		parse_expr(syntax_tree);
 		break;
 	default:
-		error(new_token->token_type);
+		printf("syntax error, %s should not appeared here!\n",
+		       token_name_str(new_token->token_type));
+		exit(0);
 	}
 }
 
@@ -76,12 +103,14 @@ static void parse_expr(syntax_node **syntax_tree)
 
 	switch(new_token->token_type) {
 	case NUM_TOKEN:
-		match(NUM_TOKEN);
-		match(OP_TOKEN);
-		match(NUM_TOKEN);
+		match_token(NUM_TOKEN);
+		match_op();
+		match_token(NUM_TOKEN);
 		break;
 	default:
-		error(new_token->token_type);
+		printf("syntax error, %s should not appeared here!\n",
+		       token_name_str(new_token->token_type));
+		exit(0);
 	}
 }
 
@@ -98,7 +127,9 @@ static void parse_end_sym(syntax_node **syntax_tree)
 		parse_start_sym(syntax_tree);
 		break;		
 	default:
-		error(new_token->token_type);	
+		printf("syntax error, %s should not appeared here!\n",
+		       token_name_str(new_token->token_type));
+		exit(0);
 	}
 }
 

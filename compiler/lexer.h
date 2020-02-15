@@ -12,7 +12,7 @@ enum {
 	INT_TOKEN,
 	IDENTIFIER_TOKEN,
 	NUM_TOKEN,
-	OP_TOKEN,
+	CHAR_TOKEN,
 	COLON_TOKEN,
 	SEMICOLON_TOKEN,
 	LEFT_PARAN_TOKEN,
@@ -48,6 +48,7 @@ typedef struct _lext_token {
 } lex_token;
 
 void lex_scanner(char *s, lex_token **lexeme_list);
+char *token_name_str(uint32_t token_type);
 void print_lex_list(lex_token *lexeme_list);
 
 #endif
