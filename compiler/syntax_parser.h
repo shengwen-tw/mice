@@ -16,5 +16,6 @@ typedef struct _syntax_node {
 
 void init_syntax_parser(lex_token *p);
 void generate_ast(syntax_node **syntax_tree);
+void print_ast(syntax_node *syntax_tree);
 
 #endif

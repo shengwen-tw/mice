@@ -18,5 +18,8 @@ int main(void)
 	init_syntax_parser(lex_list);
 	generate_ast(&syntax_tree);
 
+	print_ast(syntax_tree);
+
+
 	return 0;
 }

@@ -152,3 +152,37 @@ void generate_ast(syntax_node **syntax_tree)
 {
 	parse_loop(syntax_tree);
 }
+
+static void print_indent(int cnt)
+{
+	int i;
+	for(i = 0; i < cnt; i++) {
+		puts("  ");
+	}
+}
+
+static void syntax_tree_traversal(syntax_node *syntax_tree, int recursive_depth)
+{
+	recursive_depth++;
+
+	if(syntax_tree != NULL) {
+		print_indent(recursive_depth - 1);
+
+		switch(syntax_tree->node_type) {
+		case EXPRESSION_NODE:
+			printf("> EXPRESSION_NODE\n");
+			break;
+		case BLOCK_NODE:
+			printf("> BLOCK_NODE\n");
+			break;
+		}
+
+		syntax_tree_traversal(syntax_tree->left, recursive_depth);
+		syntax_tree_traversal(syntax_tree->right, recursive_depth);
+	}
+}
+
+void print_ast(syntax_node *syntax_tree)
+{
+	syntax_tree_traversal(syntax_tree, 0);	
+}
